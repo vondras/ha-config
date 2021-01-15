@@ -18,3 +18,31 @@ influxdb:
   password: !secret influxdb_password
   max_retries: 3
   default_measurement: state
+
+argon40: {}
+
+wyzeapi:
+  username: !secret wyze_username
+  password: !secret wyze_password
+
+nest:
+  project_id: !secret nest_project_id
+  client_id: !secret nest_client_id
+  client_secret: !secret nest_client_secret
+  subscriber_id: !secret nest_subscriber_id
+
+sensor:
+  - platform: command_line
+    name: CPU Temp
+    command: "cat /sys/class/thermal/thermal_zone0/temp"
+    unit_of_measurement: "°C"
+    value_template: "{{ value | multiply(0.001) | round(1) }}"
+
+switch:
+  - platform: ecoplug
+    scan_interval: 10
+
+emulated_kasa:
+  entities: {}
+# light.dining_room:
+#   power: 40.2
