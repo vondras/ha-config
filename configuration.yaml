@@ -10,6 +10,9 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+frontend:
+  themes: !include_dir_merge_named themes
+
 influxdb:
   host: a0d7b954-influxdb
   port: 8086
@@ -19,7 +22,7 @@ influxdb:
   max_retries: 3
   default_measurement: state
 
-argon40: {}
+argon40:
 
 wyzeapi:
   username: !secret wyze_username
@@ -31,18 +34,79 @@ nest:
   client_secret: !secret nest_client_secret
   subscriber_id: !secret nest_subscriber_id
 
+wake_on_lan:
+
+samsungtv:
+  - host: 192.168.86.224
+    turn_on_action:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: "f8:04:2e:ff:5c:be"
+  - host: 192.168.86.216
+    turn_on_action:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: "5c:c1:d7:e3:f4:20"
+
 sensor:
   - platform: command_line
     name: CPU Temp
     command: "cat /sys/class/thermal/thermal_zone0/temp"
     unit_of_measurement: "°C"
     value_template: "{{ value | multiply(0.001) | round(1) }}"
+  - platform: aarlo
+    monitored_conditions:
+      - total_cameras
+      - last_capture
+      - recent_activity
+      - captured_today
+      - battery_level
+      - signal_strength
+      - temperature
+      - humidity
+      - air_quality
 
 switch:
   - platform: ecoplug
     scan_interval: 10
+  - platform: aarlo
+    # siren: True
+    # all_sirens: True
+    snapshot: True
+    # siren_volume: 1
+    # siren_duration: 10
 
 emulated_kasa:
-  entities: {}
-# light.dining_room:
-#   power: 40.2
+  entities:
+    switch.bar_lights:
+      name: "Bar Lights"
+      power: 4
+    # switch.christmas_tree: {}
+    # binary_sensor.pixel_5_is_charging: {}
+    # switch.dust_collector_switch: {}
+
+aarlo:
+  username: !secret arlo_username
+  password: !secret arlo_password
+  tfa_host: imap.gmail.com
+  tfa_username: !secret arlo_2fa_username
+  tfa_password: !secret arlo_2fa_password
+  user_agent: linux
+
+camera:
+  - platform: aarlo
+
+binary_sensor:
+  - platform: aarlo
+    monitored_conditions:
+      - motion
+      - sound
+      - connectivity
+
+media_player:
+  - platform: aarlo
+
+roomba:
+  - host: !secret roomba_host
+    blid: !secret roomba_blid
+    password: !secret roomba_password

@@ -4,3 +4,7 @@ custom_components/
 *.august.conf
 home-assistant.log
 home-assistant_v2.db
+.aarlo/
+tts/
+www/
+themes/
